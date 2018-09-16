@@ -3,17 +3,226 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:shell="http://schemas.microsoft.com/winfx/2006/xaml/presentation/shell"
         xmlns:local="clr-namespace:Audio_Visualizer"
         mc:Ignorable="d"
-        Title="Audio Visualizer" Height="450" Width="800" Background="Transparent" WindowStyle="None" AllowsTransparency="True">
-    <Border x:Name="Background" BorderThickness="1" Background="#FF141414" CornerRadius="5">
+        Title="Audio Visualizer" Height="720" Width="1240" Background="{x:Null}" MinWidth="853" MinHeight="480" BorderThickness="0" Foreground="{x:Null}" AllowsTransparency="True" WindowStyle="None">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="5" CornerRadius="5"/>
+    </shell:WindowChrome.WindowChrome>
+    <Window.Resources>
+        <!--Window Control-->
+        <Style x:Key="RectBorderStyle" TargetType="Rectangle">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Fill" Value="Transparent"/>
+            <Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+            <EventSetter Event="MouseLeftButtonDown" Handler="ResizeInit"/>
+            <EventSetter Event="MouseLeftButtonUp" Handler="ResizeEnd"/>
+            <EventSetter Event="MouseMove" Handler="ResizingWindow"/>
+        </Style>
+
+        <!--Window Control Hover-->
+        <Style x:Key="RedMouseOver" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="Red"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid Background="Transparent">
+                                <ContentPresenter></ContentPresenter>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="GrayMouseOver" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="{x:Type Border}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#593A3A3A"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Grid Background="Transparent">
+                                <ContentPresenter></ContentPresenter>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="ShadowStyle">
+            <Setter Property="Control.Foreground" Value=" LightGray"/>
+        </Style>
+
+        <!--Navigation Buttons-->
+        <Style x:Key="NavigationButton" TargetType="Button">
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="#FF00CBD1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="content"/>
+                            <Rectangle x:Name="underline" Fill="{x:Null}" HorizontalAlignment="Stretch" Height="1" Margin="0,17,0,2" Width="Auto" VerticalAlignment="Center" RadiusX="0.5" RadiusY="0.5"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="underline" Property="Fill" Value="#FF00CBD1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="underline" Property="Fill" Value="#FF00B4B9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Foreground" Value="#FF00B4B9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+
+
+
+
+    <Border x:Name="Background" BorderThickness="1" CornerRadius="5" Margin="0">
+        <Border.Background>
+            <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+                <LinearGradientBrush.RelativeTransform>
+                    <TransformGroup>
+                        <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                        <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                        <RotateTransform Angle="225" CenterY="0.5" CenterX="0.5"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </LinearGradientBrush.RelativeTransform>
+                <GradientStop Color="#FF00A2FF" Offset="0"/>
+                <GradientStop Color="#FF00FF97" Offset="1"/>
+            </LinearGradientBrush>
+        </Border.Background>
         <Grid>
-            <Border x:Name="toolbar" BorderThickness="1" Height="40" VerticalAlignment="Top" Background="#FF1E1E1E" CornerRadius="5, 5, 0, 0" Margin="-1,-1,-1,0">
-                <Grid>
-                    <Button x:Name="close_window" Content="Close" Margin="0,4,4,4"  BorderBrush="{x:Null}" Foreground="#FF838383" Background="White" Click="close_window_Click" HorizontalAlignment="Right" VerticalAlignment="Center" Width="50" Height="30"/>
-                    <Button x:Name="maximize_window" Content="Maximize" Margin="0,4,59,4"  BorderBrush="{x:Null}" Foreground="#FF838383" Background="White" Click="maximize_window_Click" VerticalAlignment="Center" HorizontalAlignment="Right" Width="50" Height="30"/>
-                    <Button x:Name="minimize_window" Content="Minimize" Margin="0,4,114,4"  BorderBrush="{x:Null}" Foreground="#FF838383" Background="White" Click="minimize_window_Click" VerticalAlignment="Center" HorizontalAlignment="Right" Width="50" Height="30"/>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="90*"/>
+                <RowDefinition Height="250*"/>
+                <RowDefinition Height="300*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="700*"/>
+                <ColumnDefinition Width="450*"/>
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="WindowControl" Margin="0" Grid.ColumnSpan="3">
+                <Button Style="{StaticResource RedMouseOver}" x:Name="close_window" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="close_window_Click" HorizontalAlignment="Right" Width="50" Background="#FFCB0808" Margin="0">
+                    <Button.Content>
+                        <Grid Margin="0">
+                            <Image Source="Resources/Close.png" Width="12"/>
+                        </Grid>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource GrayMouseOver}" x:Name="maximize_window"  BorderBrush="{x:Null}" Foreground="{x:Null}" Click="maximize_window_Click" HorizontalAlignment="Right" Width="50" Margin="0,0,50,0">
+                    <Button.Content>
+                        <Grid Margin="0">
+                            <Image Source="Resources/Maximize.png" Width="12"/>
+                        </Grid>
+                    </Button.Content>
+                </Button>
+                <Button Style="{StaticResource GrayMouseOver}" x:Name="minimize_window" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="minimize_window_Click" HorizontalAlignment="Right" Width="50" Margin="0,0,100,0" RenderTransformOrigin="10.98,1.857">
+                    <Button.Content>
+                        <Grid Margin="0">
+                            <Image Source="Resources/Minimize.png" Width="12"/>
+                        </Grid>
+                    </Button.Content>
+                </Button>
+            </Grid>
+            <Border x:Name="WindowDrag" BorderThickness="1" Margin="0" MouseDown="window_drag" Background="#00D4D4D4" Panel.ZIndex="-1" Grid.ColumnSpan="3" Grid.RowSpan="4"/>
+            <Border x:Name="Menu" BorderThickness="0" Width="150" Background="White" CornerRadius="5" MouseDown="window_drag" Grid.RowSpan="4">
+                <Border.Effect>
+                    <DropShadowEffect Direction="0" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
+                </Border.Effect>
+                <Grid x:Name="MenuGrid" Margin="0">
+                    <Grid x:Name="Title" Height="30" Margin="0" VerticalAlignment="Top">
+                        <Label x:Name="Visualizer" Content="Visualizer" HorizontalAlignment="Center" Width="66" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FF00CBD1" Margin="0"/>
+                        <Ellipse x:Name="Icon" Fill="#FF00CBD1" HorizontalAlignment="Left" Height="18" Margin="6,6,0,6" VerticalAlignment="Center" Width="18"/>
+                    </Grid>
+                    <Grid x:Name="Navigation" Height="179" Margin="0,60,0,0" VerticalAlignment="Top">
+                        <Button x:Name="Mixer" Content="Mixer" HorizontalAlignment="Center" Width="32" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="59,0" VerticalAlignment="Top" Height="24"  Style="{DynamicResource NavigationButton}" Click="select_mixer"/>
+                        <Button x:Name="EQ" Content="EQ" HorizontalAlignment="Center" Width="16" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="67,24,67,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="select_eq"/>
+                        <Button x:Name="Chroma" Content="Chroma" HorizontalAlignment="Center" Width="42" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="54,48,54,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="select_chroma"/>
+                        <Button x:Name="Comms" Content="Comms" HorizontalAlignment="Center" Width="42" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="54,72,54,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="select_comms"/>
+                        <Button x:Name="Settings" Content="Settings" HorizontalAlignment="Center" Width="44" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="53,96,53,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="select_settings"/>
+                        <Rectangle x:Name="SelectedPanelIcon" Fill="#FF00CBD1" HorizontalAlignment="Center" Height="4" Margin="44,106,102,69" RadiusY="0.5" RadiusX="0.5" VerticalAlignment="Top" Width="4" RenderTransformOrigin="0.5,0.5"/>
+                    </Grid>
+                    <Grid x:Name="Spotify" Height="209" VerticalAlignment="Bottom">
+                        <Border x:Name="AlbumArt" BorderThickness="0" HorizontalAlignment="Center" Width="120" CornerRadius="10" Height="120" VerticalAlignment="Top" Margin="0,25,0,0">
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <LinearGradientBrush.RelativeTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform CenterY="0.5" CenterX="0.5"/>
+                                            <SkewTransform CenterY="0.5" CenterX="0.5"/>
+                                            <RotateTransform Angle="225" CenterY="0.5" CenterX="0.5"/>
+                                            <TranslateTransform/>
+                                        </TransformGroup>
+                                    </LinearGradientBrush.RelativeTransform>
+                                    <GradientStop Color="#FF00A2FF" Offset="0"/>
+                                    <GradientStop Color="#FF00FF97" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect Direction="0" BlurRadius="10" ShadowDepth="0" Opacity="0.25"/>
+                            </Border.Effect>
+                        </Border>
+                        <Label x:Name="Song" Content="Song" HorizontalAlignment="Center" VerticalAlignment="Top" Width="120" Height="24" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FF00CBD1" Margin="0"/>
+                        <Label x:Name="Artist" Content="Artist" HorizontalAlignment="Center" VerticalAlignment="Top" Width="120" Height="24" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FF00CBD1" Margin="15,145,15,0"/>
+                        <Grid x:Name="ProgressBar" Margin="17,0,17,17" VerticalAlignment="Bottom">
+                            <Label x:Name="Timestamp" Content="0:32" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="24" Height="19" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FF00CBD1" Margin="-5,0,0,-2" FontSize="8"/>
+                            <Label x:Name="SongDuration" Content="2:59" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="24" Height="19" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FF00CBD1" Margin="0,0,-5,-2" FontSize="8"/>
+                            <Rectangle x:Name="Bar" Fill="#FFD8D8D8" Height="2" Margin="0" VerticalAlignment="Bottom" RenderTransformOrigin="0.65,0.62" RadiusX="1" RadiusY="1"/>
+                            <Rectangle x:Name="BarFill" Fill="#FF00CBD1" Height="2" Margin="0" VerticalAlignment="Bottom" RenderTransformOrigin="0.65,0.62" RadiusX="1" RadiusY="1" HorizontalAlignment="Left" Width="40"/>
+                        </Grid>
+                    </Grid>
                 </Grid>
+            </Border>
+            <Border x:Name="Waveform" BorderThickness="0" Margin="10,5" Background="White" CornerRadius="10" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1">
+                <Border.Effect>
+                    <DropShadowEffect Direction="0" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
+                </Border.Effect>
+            </Border>
+            <Border x:Name="Analyzer" BorderThickness="0" Margin="10,5,5,5" Background="White" CornerRadius="10" Grid.Column="1" Grid.Row="2">
+                <Border.Effect>
+                    <DropShadowEffect Direction="0" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
+                </Border.Effect>
+            </Border>
+            <Border x:Name="Spectrogram" BorderThickness="0" Margin="5,5,10,5" Background="White" CornerRadius="10" Grid.Column="2" Grid.Row="2">
+                <Border.Effect>
+                    <DropShadowEffect Direction="0" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
+                </Border.Effect>
+            </Border>
+            <Border x:Name="MainPanel" BorderThickness="0" Background="White" CornerRadius="10" Margin="10,5,10,10" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3">
+                <Border.Effect>
+                    <DropShadowEffect Direction="0" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
+                </Border.Effect>
             </Border>
         </Grid>
     </Border>
