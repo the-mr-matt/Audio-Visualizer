@@ -1,4 +1,5 @@
 ﻿using Audio_Visualizer.UI;
+using Audio_Visualizer.SpotifyAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace Audio_Visualizer
         {
             InitializeComponent();
             
+            Spotify spotify = new Spotify();
         }
 
         #region WindowCommands
