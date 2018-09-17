@@ -213,6 +213,31 @@
                 <Border.Effect>
                     <DropShadowEffect Direction="0" BlurRadius="30" ShadowDepth="0" Opacity="0.5"/>
                 </Border.Effect>
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid x:Name="AnalysisBar" Margin="34,0,40.333,-0.333" Width="15">
+                        <Grid.Effect>
+                            <DropShadowEffect ShadowDepth="0" BlurRadius="20" Opacity="0.3"/>
+                        </Grid.Effect>
+                        <Rectangle x:Name="Fill" Margin="0">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                    <GradientStop Color="#FF00A2FF" Offset="0"/>
+                                    <GradientStop Color="#FF00FF97" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Rectangle x:Name="Line" Margin="-5,0" Height="2" VerticalAlignment="Top" Fill="#FF00A2FF"/>
+                    </Grid>
+                </Grid>
             </Border>
             <Border x:Name="Spectrogram" BorderThickness="0" Margin="5,5,10,5" Background="White" CornerRadius="10" Grid.Column="2" Grid.Row="2">
                 <Border.Effect>
