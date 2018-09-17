@@ -34,17 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSCore, Version=1.2.1.2, Culture=neutral, PublicKeyToken=5a08f2b6f4415dea, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSCore.1.2.1.2\lib\net35-client\CSCore.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Windows.Shell">
       <HintPath>.\Microsoft.Windows.Shell.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="SpotifyAPI.Web, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpotifyAPI.Web.3.0.2\lib\net46\SpotifyAPI.Web.dll</HintPath>
-    </Reference>
-    <Reference Include="SpotifyAPI.Web.Auth, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\SpotifyAPI.Web.Auth.3.0.2\lib\net46\SpotifyAPI.Web.Auth.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -57,12 +51,6 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="Unosquare.Labs.EmbedIO, Version=1.16.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\EmbedIO.1.16.1\lib\net46\Unosquare.Labs.EmbedIO.dll</HintPath>
-    </Reference>
-    <Reference Include="Unosquare.Swan.Lite, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unosquare.Swan.Lite.0.34.0\lib\net452\Unosquare.Swan.Lite.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -72,7 +60,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Spotify\Spotify.cs" />
+    <Compile Include="Analyzer.cs" />
+    <Compile Include="CSCore\BasicSpectrumProvider.cs" />
+    <Compile Include="CSCore\ISpectrumProvider.cs" />
+    <Compile Include="CSCore\SpectrumAnalyzer.cs" />
+    <Compile Include="CSCore\ScalingStrategy.cs" />
+    <Compile Include="CSCore\SpectrumBase.cs" />
     <Compile Include="UI\WindowHandling.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -1,7 +1,9 @@
 ﻿using Audio_Visualizer.UI;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace Audio_Visualizer
 {
@@ -10,11 +12,32 @@ namespace Audio_Visualizer
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow Instance;
+
+        #region ----CONSTRUCTOR----
         public MainWindow()
         {
-            InitializeComponent();
-        }
+            //singleton
+            Instance = this;
 
+            InitializeComponent();
+
+            //setup analyzer
+            Analyzer.CreateAnalyserBars();
+            Analyzer.InitAudioSource();
+
+            //init timer
+            
+        }
+        #endregion
+
+        #region ----CONFIG----
+        //main
+        private static DispatcherTimer m_Timer = new DispatcherTimer();
+        private static TimeSpan m_TimerInterval = new TimeSpan(0, 0, 0, 0, 20);
+        #endregion
+
+        //general
         #region WindowCommands
         private void close_window_Click(object sender, RoutedEventArgs e)
         {
@@ -23,7 +46,7 @@ namespace Audio_Visualizer
         private void maximize_window_Click(object sender, RoutedEventArgs e)
         {
             //set the window state and disable window resizing when the window is maximized
-            if(WindowState == WindowState.Maximized)
+            if (WindowState == WindowState.Maximized)
             {
                 WindowHandling.RestoreWindow(this);
                 //WindowHandling.EnableResize(WindowResize);
@@ -58,13 +81,13 @@ namespace Audio_Visualizer
             WindowHandling.ResizeWindow(sender, e);
         }
         #endregion
-        
+
         #region MenuNavigation
         private void select_mixer(object sender, RoutedEventArgs e)
         {
             SetIconPosition(Mixer);
         }
-        private void select_eq(object sender, RoutedEventArgs e) 
+        private void select_eq(object sender, RoutedEventArgs e)
         {
             SetIconPosition(EQ);
         }
@@ -94,5 +117,30 @@ namespace Audio_Visualizer
             SelectedPanelIcon.Margin = margin;
         }
         #endregion
+
+        /// <summary>
+        /// Start the dispatch timer
+        /// </summary>
+        public static void StartTimer()
+        {
+            m_Timer.Tick += timer_tick;
+            m_Timer.Interval = m_TimerInterval;
+            m_Timer.Start();
+        }
+        
+        /// <summary>
+        /// Stop the dispatch timer
+        /// </summary>
+        public static void StopTimer()
+        {
+            m_Timer.Stop();
+            m_Timer.Tick -= timer_tick;
+        }
+
+        //main logic
+        private static void timer_tick(object sender, EventArgs e)
+        {
+            Analyzer.GetBarValues();
+        }
     }
 }
