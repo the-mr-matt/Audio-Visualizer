@@ -21,7 +21,7 @@ namespace Audio_Visualizer
 
         #region ----CONFIG----
         private const int m_NumberOfAnalysisBars = 14;
-        private const double m_Multiplier = 1.25;
+        private const double m_Multiplier = 4;
         private static Grid[] m_Bars;
 
         private static WasapiCapture m_SoundIn;
@@ -167,16 +167,16 @@ namespace Audio_Visualizer
         /// </summary>
         public static void SetupSampleSource(ISampleSource aSampleSource)
         {
-            const FftSize fftSize = FftSize.Fft8192;
+            const FftSize fftSize = FftSize.Fft2048;
             var spectrumProvider = new BasicSpectrumProvider(aSampleSource.WaveFormat.Channels, aSampleSource.WaveFormat.SampleRate, fftSize);
 
             m_SpectrumAnalyzer = new SpectrumAnalyzer(fftSize)
             {
                 SpectrumProvider = spectrumProvider,
-                UseAverage = false,
-                //BarCount = NumberOfAnalysisBars,
+                UseAverage = true,
+                BarCount = NumberOfAnalysisBars,
                 UseLogScale = true,
-                ScalingStrategy = ScalingStrategy.Decibel
+                ScalingStrategy = ScalingStrategy.Sqrt
             };
 
             var notificationSource = new SingleBlockNotificationStream(aSampleSource);
