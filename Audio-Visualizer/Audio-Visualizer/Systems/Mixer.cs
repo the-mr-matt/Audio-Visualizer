@@ -1,4 +1,7 @@
-﻿using Audio_Visualizer.UI;
+﻿using Audio_Visualizer.Other;
+using Audio_Visualizer.UI;
+using CSCore.CoreAudioAPI;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -11,6 +14,15 @@ namespace Audio_Visualizer.Systems
     {
         #region ----STATE----
         private static Label[] m_ChannelNames;
+        private static Grid[] m_Levels;
+        private static Grid[] m_LevelParents;
+        private static Thickness m_InitialMargin;
+
+        private static AudioMeterInformation m_PeakMeter;
+        #endregion
+
+        #region ----CONFIG----
+        private const double m_Multiplier = 2.0;
         #endregion
 
         /// <summary>
@@ -18,16 +30,16 @@ namespace Audio_Visualizer.Systems
         /// </summary>
         public static void CreateMixerChannels()
         {
-            var zeroMargin = new Thickness() { Top = 0, Bottom = 0, Left = 0, Right = 0 };
-
             //create arrays
             m_ChannelNames = new Label[10];
+            m_Levels = new Grid[10];
+            m_LevelParents = new Grid[10];
 
             //create mixer sliders
             for (int i = 0; i < 10; i++)
             {
                 //main grid
-                Grid grid = new Grid() { Margin = zeroMargin };
+                Grid grid = new Grid() { Margin = Utils.ZeroMargin };
 
                 //make grid child of mixer grid
                 MainWindow.Instance.MixerGrid.Children.Add(grid);
@@ -41,19 +53,24 @@ namespace Audio_Visualizer.Systems
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     HorizontalContentAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Top,
-                    Margin = zeroMargin
+                    Margin = Utils.ZeroMargin
                 };
 
+                //add to array
                 m_ChannelNames[i] = label;
 
                 //make label a child of grid
                 grid.Children.Add(label);
 
+                //add to array
+                m_LevelParents[i] = grid;
+
                 //slider
                 Slider slider = new Slider()
                 {
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    Margin = new Thickness() { Left = -35, Top = 30, Right = 0, Bottom = 10 },
+                    //modify spacing on master channel
+                    Margin = new Thickness() { Left = -32, Top = 36, Right = 0, Bottom = 16 },
                     VerticalAlignment = VerticalAlignment.Stretch,
                     Background = null,
                     Width = 22,
@@ -66,93 +83,53 @@ namespace Audio_Visualizer.Systems
                 //make slider child of grid
                 grid.Children.Add(slider);
 
-                //levels grid
-                //first channel has L and R
-                if (i == 0)
+                //levels
+                //make a parent object
+                m_InitialMargin = new Thickness() { Left = 18, Top = 36, Right = 0, Bottom = 16 };
+
+                Grid level = new Grid()
                 {
-                    Grid left = new Grid()
-                    {
-                        Margin = new Thickness() { Left = 25, Top = 36, Right = 0, Bottom = 16 },
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Stretch,
-                        Width = 15
-                    };
+                    Margin = m_InitialMargin,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Stretch,
+                    Width = 15
+                };
 
-                    Grid right = new Grid()
-                    {
-                        Margin = new Thickness() { Left = 45, Top = 36, Right = 0, Bottom = 16 },
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Stretch,
-                        Width = 15
-                    };
+                //make levels child of grid
+                grid.Children.Add(level);
 
-                    //make levels children of grid
-                    grid.Children.Add(left);
-                    grid.Children.Add(right);
-
-                    //levels shape
-                    Rectangle lBg = new Rectangle()
-                    {
-                        Fill = new SolidColorBrush(ColorPalette.Gray),
-                        HorizontalAlignment = HorizontalAlignment.Stretch,
-                        VerticalAlignment = VerticalAlignment.Stretch,
-                        Margin = zeroMargin
-                    };
-
-                    Rectangle lLine = new Rectangle()
-                    {
-                        Fill = new SolidColorBrush(ColorPalette.Accent),
-                        HorizontalAlignment = HorizontalAlignment.Stretch,
-                        VerticalAlignment = VerticalAlignment.Top,
-                        Margin = zeroMargin,
-                        Height = 2
-                    };
-
-                    Rectangle rBg = new Rectangle()
-                    {
-                        Fill = new SolidColorBrush(ColorPalette.Gray),
-                        HorizontalAlignment = HorizontalAlignment.Stretch,
-                        VerticalAlignment = VerticalAlignment.Stretch,
-                        Margin = zeroMargin
-                    };
-
-                    Rectangle rLine = new Rectangle()
-                    {
-                        Fill = new SolidColorBrush(ColorPalette.Accent),
-                        HorizontalAlignment = HorizontalAlignment.Stretch,
-                        VerticalAlignment = VerticalAlignment.Top,
-                        Margin = zeroMargin,
-                        Height = 2
-                    };
-
-                    //make shape child of levels grid
-                    left.Children.Add(lBg);
-                    left.Children.Add(lLine);
-                    right.Children.Add(rBg);
-                    right.Children.Add(rLine);
-                }
-                else
+                //add to array
+                m_Levels[i] = level;
+                
+                //levels shape
+                Rectangle bg = new Rectangle()
                 {
-                    Grid levels = new Grid()
-                    {
-                        Margin = new Thickness() { Left = 35, Top = 36, Right = 0, Bottom = 16 },
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        VerticalAlignment = VerticalAlignment.Stretch,
-                        Width = 15
-                    };
+                    Fill = new SolidColorBrush(ColorPalette.Gray),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch,
+                    Margin = Utils.ZeroMargin
+                };
 
-                    //make levels child of grid
-                    grid.Children.Add(levels);
+                Rectangle line = new Rectangle()
+                {
+                    Fill = new SolidColorBrush(ColorPalette.Accent),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Margin = Utils.ZeroMargin,
+                    Height = 2
+                };
 
-                    Levels(zeroMargin, levels);
-                }
+                //make shape child of levels grid
+                level.Children.Add(bg);
+                level.Children.Add(line);
 
                 //scale grid
                 UniformGrid scaleGrid = new UniformGrid()
                 {
                     Columns = 1,
                     Rows = 10,
-                    Margin = new Thickness() { Left = 60, Top = 40, Right = 0, Bottom = 20 },
+                    //modify spacing on the master channel
+                    Margin = new Thickness() { Left = 45, Top = 36, Right = 0, Bottom = 20 },
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Stretch,
                     Width = 5
@@ -169,7 +146,7 @@ namespace Audio_Visualizer.Systems
                         Fill = new SolidColorBrush(ColorPalette.Gray),
                         HorizontalAlignment = HorizontalAlignment.Stretch,
                         VerticalAlignment = VerticalAlignment.Center,
-                        Margin = zeroMargin,
+                        Margin = Utils.ZeroMargin,
                         Height = 2
                     };
 
@@ -181,32 +158,7 @@ namespace Audio_Visualizer.Systems
             //set first channel
             SetChannelName(0, "Master");
         }
-
-        private static void Levels(Thickness zeroMargin, Grid levels)
-        {
-            //levels shape
-            Rectangle bg = new Rectangle()
-            {
-                Fill = new SolidColorBrush(ColorPalette.Gray),
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch,
-                Margin = zeroMargin
-            };
-
-            Rectangle line = new Rectangle()
-            {
-                Fill = new SolidColorBrush(ColorPalette.Accent),
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Top,
-                Margin = zeroMargin,
-                Height = 2
-            };
-
-            //make shape child of levels grid
-            levels.Children.Add(bg);
-            levels.Children.Add(line);
-        }
-
+        
         /// <summary>
         /// Replace the default channel name
         /// </summary>
@@ -215,6 +167,42 @@ namespace Audio_Visualizer.Systems
             //TODO: application icon
 
             m_ChannelNames[index].Content = content;
+        }
+        
+        /// <summary>
+        /// Set the level for the given channel
+        /// </summary>
+        private static void SetLevel(int index, double normalizedValue)
+        {
+            //get the current height of the overall grid
+            double maxGridHeight = m_LevelParents[index].ActualHeight;
+
+            //get the current margin
+            var margin = m_Levels[index].Margin;
+
+            //calculate the maximum possible height of the level at the current window size
+            double maxLevelHeight = (maxGridHeight - m_InitialMargin.Bottom);
+
+            //calculate the new margin
+            double value = Utils.Lerp(m_InitialMargin.Top, maxLevelHeight, (1.0 - normalizedValue));
+
+            //assign margin
+            margin.Top = value;
+            m_Levels[index].Margin = margin;
+        }
+
+        public static void InitPeakMeter()
+        {
+            MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
+            m_PeakMeter = AudioMeterInformation.FromDevice(enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console));
+        }
+
+        public static void ProcessLevels()
+        {
+            //master levels
+            double value = m_PeakMeter.GetPeakValue() * m_Multiplier;
+            
+            SetLevel(0, value);
         }
     }
 }

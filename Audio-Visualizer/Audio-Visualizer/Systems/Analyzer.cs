@@ -192,7 +192,7 @@ namespace Audio_Visualizer.Systems
         /// <summary>
         /// Retrieve all normalized bar values from the FFT
         /// </summary>
-        public static void GetBarValues()
+        public static void ProcessBarValues()
         {
             //set the height and gradient of the bars - spectrum analyzer
             double[] data = m_SpectrumAnalyzer.GetPointData(m_Multiplier);

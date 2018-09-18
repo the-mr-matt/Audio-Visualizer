@@ -55,7 +55,7 @@
         </ControlTemplate>
         <SolidColorBrush x:Key="SliderThumb.Track.Border" Color="#FFD6D6D6"/>
         <SolidColorBrush x:Key="SliderThumb.Track.Background" Color="#FFE7EAEA"/>
-        <Style x:Key="RepeatButtonTransparent" TargetType="{x:Type RepeatButton}">
+        <Style x:Key="RepeatButtonAbove" TargetType="{x:Type RepeatButton}">
             <Setter Property="OverridesDefaultStyle" Value="true"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Focusable" Value="false"/>
@@ -63,7 +63,20 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type RepeatButton}">
-                        <Rectangle Fill="{TemplateBinding Background}" Height="{TemplateBinding Height}" Width="{TemplateBinding Width}"/>
+                        <Rectangle Fill="#FF00A2FF" RadiusX="2.5" RadiusY="2.5" Width="5" Margin="0,-4,0,0"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="RepeatButtonBelow" TargetType="{x:Type RepeatButton}">
+            <Setter Property="OverridesDefaultStyle" Value="true"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Focusable" Value="false"/>
+            <Setter Property="IsTabStop" Value="false"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RepeatButton}">
+                        <Rectangle Fill="#FF363636" RadiusX="2.5" RadiusY="2.5" Width="5" Margin="0,-4,0,0"/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -104,10 +117,10 @@
                     </Border>
                     <Track x:Name="PART_Track" Grid.Row="1">
                         <Track.DecreaseRepeatButton>
-                            <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource RepeatButtonTransparent}"/>
+                            <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource RepeatButtonAbove}"/>
                         </Track.DecreaseRepeatButton>
                         <Track.IncreaseRepeatButton>
-                            <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource RepeatButtonTransparent}"/>
+                            <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource RepeatButtonBelow}"/>
                         </Track.IncreaseRepeatButton>
                         <Track.Thumb>
                             <Thumb x:Name="Thumb" Focusable="False" Height="18" OverridesDefaultStyle="True" Template="{StaticResource SliderThumbHorizontalDefault}" VerticalAlignment="Center" Width="11"/>
@@ -195,56 +208,40 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
+        <Style x:Key="SliderThumb" TargetType="Thumb">
+            <Setter Property="SnapsToDevicePixels" Value="true" />
+            <Setter Property="OverridesDefaultStyle" Value="true" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Rectangle Height="50" Width="25 " RadiusX="3" RadiusY="3">
+                            <Rectangle.Fill>
+                                <ImageBrush ImageSource="/Images/darkSlider.jpg"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <ControlTemplate x:Key="SliderVertical" TargetType="{x:Type Slider}">
-            <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition MinWidth="{TemplateBinding MinWidth}" Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TickBar x:Name="TopTick" Grid.Column="0" Fill="{TemplateBinding Foreground}" Margin="0,0,2,0" Placement="Left" Visibility="Collapsed" Width="4"/>
-                    <TickBar x:Name="BottomTick" Grid.Column="2" Fill="{TemplateBinding Foreground}" Margin="2,0,0,0" Placement="Right" Visibility="Collapsed" Width="4"/>
-                    <Border x:Name="TrackBackground" BorderThickness="0,0,0,1" Background="#FF0096FF" Grid.Column="1" HorizontalAlignment="center" Margin="0,5" Width="4" BorderBrush="{x:Null}" CornerRadius="2">
-                        <Canvas Margin="-1,-6" d:IsHidden="True">
-                            <Rectangle x:Name="PART_SelectionRange" Fill="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Visibility="Hidden" Width="4.0"/>
-                        </Canvas>
-                    </Border>
                     <Track x:Name="PART_Track" Grid.Column="1">
                         <Track.DecreaseRepeatButton>
-                            <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource RepeatButtonTransparent}"/>
+                            <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource RepeatButtonAbove}"/>
                         </Track.DecreaseRepeatButton>
                         <Track.IncreaseRepeatButton>
-                            <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource RepeatButtonTransparent}"/>
+                            <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource RepeatButtonBelow}"/>
                         </Track.IncreaseRepeatButton>
                         <Track.Thumb>
-                            <Thumb x:Name="Thumb" Focusable="False" Height="11" OverridesDefaultStyle="True" Template="{StaticResource SliderThumbVerticalDefault}" VerticalAlignment="Top" Width="18"/>
+                            <Thumb Style="{StaticResource SliderThumb}"/>
                         </Track.Thumb>
                     </Track>
                 </Grid>
-            </Border>
-            <ControlTemplate.Triggers>
-                <Trigger Property="TickPlacement" Value="TopLeft">
-                    <Setter Property="Visibility" TargetName="TopTick" Value="Visible"/>
-                    <Setter Property="Template" TargetName="Thumb" Value="{StaticResource SliderThumbVerticalLeft}"/>
-                    <Setter Property="Margin" TargetName="TrackBackground" Value="2,5,0,5"/>
-                </Trigger>
-                <Trigger Property="TickPlacement" Value="BottomRight">
-                    <Setter Property="Visibility" TargetName="BottomTick" Value="Visible"/>
-                    <Setter Property="Template" TargetName="Thumb" Value="{StaticResource SliderThumbVerticalRight}"/>
-                    <Setter Property="Margin" TargetName="TrackBackground" Value="0,5,2,5"/>
-                </Trigger>
-                <Trigger Property="TickPlacement" Value="Both">
-                    <Setter Property="Visibility" TargetName="TopTick" Value="Visible"/>
-                    <Setter Property="Visibility" TargetName="BottomTick" Value="Visible"/>
-                </Trigger>
-                <Trigger Property="IsSelectionRangeEnabled" Value="true">
-                    <Setter Property="Visibility" TargetName="PART_SelectionRange" Value="Visible"/>
-                </Trigger>
-                <Trigger Property="IsKeyboardFocused" Value="true">
-                    <Setter Property="Foreground" TargetName="Thumb" Value="Blue"/>
-                </Trigger>
-            </ControlTemplate.Triggers>
         </ControlTemplate>
         <Style x:Key="MixerSlider" TargetType="{x:Type Slider}">
             <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>

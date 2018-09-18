@@ -25,12 +25,12 @@ namespace Audio_Visualizer
             
             Mixer.CreateMixerChannels();
 
-            //setup analyzer
+            //init analyzer
             Analyzer.CreateAnalyserBars();
             Analyzer.InitAudioSource();
 
-            //init timer
-
+            //init mixer
+            Mixer.InitPeakMeter();
         }
         #endregion
 
@@ -141,7 +141,8 @@ namespace Audio_Visualizer
         //main logic
         private static void TimerTick(object sender, EventArgs e)
         {
-            Analyzer.GetBarValues();
+            Analyzer.ProcessBarValues();
+            Mixer.ProcessLevels();
         }
     }
 }

@@ -60,6 +60,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Other\Utils.cs" />
     <Compile Include="Systems\Analyzer.cs" />
     <Compile Include="CSCore\BasicSpectrumProvider.cs" />
     <Compile Include="CSCore\ISpectrumProvider.cs" />
@@ -113,6 +114,9 @@
     <Resource Include="Resources\Close.png" />
     <Resource Include="Resources\Maximize.png" />
     <Resource Include="Resources\Minimize.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\darkSlider.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
