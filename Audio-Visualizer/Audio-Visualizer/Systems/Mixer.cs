@@ -201,8 +201,9 @@ namespace Audio_Visualizer.Systems
         {
             //master levels
             double value = m_PeakMeter.GetPeakValue() * m_Multiplier;
-            
-            SetLevel(0, value);
+
+            //clamp value
+            SetLevel(0, Math.Min(value, 1));
         }
     }
 }
