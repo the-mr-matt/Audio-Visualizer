@@ -60,12 +60,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Analyzer.cs" />
+    <Compile Include="Systems\Analyzer.cs" />
     <Compile Include="CSCore\BasicSpectrumProvider.cs" />
     <Compile Include="CSCore\ISpectrumProvider.cs" />
     <Compile Include="CSCore\SpectrumAnalyzer.cs" />
     <Compile Include="CSCore\ScalingStrategy.cs" />
     <Compile Include="CSCore\SpectrumBase.cs" />
+    <Compile Include="Systems\Mixer.cs" />
+    <Compile Include="UI\ColorPalette.cs" />
     <Compile Include="UI\WindowHandling.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

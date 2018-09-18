@@ -1,4 +1,5 @@
 ﻿using Audio_Visualizer.UI;
+using Audio_Visualizer.Systems;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,29 +22,29 @@ namespace Audio_Visualizer
             Instance = this;
 
             InitializeComponent();
+            
+            Mixer.CreateMixerChannels();
 
             //setup analyzer
             Analyzer.CreateAnalyserBars();
             Analyzer.InitAudioSource();
 
             //init timer
-            
+
         }
         #endregion
 
         #region ----CONFIG----
-        //main
         private static DispatcherTimer m_Timer = new DispatcherTimer();
         private static TimeSpan m_TimerInterval = new TimeSpan(0, 0, 0, 0, 20);
         #endregion
-
-        //general
+        
         #region WindowCommands
-        private void close_window_Click(object sender, RoutedEventArgs e)
+        private void CloseWindowClick(object sender, RoutedEventArgs e)
         {
             WindowHandling.CloseWindow(this);
         }
-        private void maximize_window_Click(object sender, RoutedEventArgs e)
+        private void MaximizeWindowClick(object sender, RoutedEventArgs e)
         {
             //set the window state and disable window resizing when the window is maximized
             if (WindowState == WindowState.Maximized)
@@ -57,11 +58,11 @@ namespace Audio_Visualizer
                 //WindowHandling.DisableResize(WindowResize);
             }
         }
-        private void minimize_window_Click(object sender, RoutedEventArgs e)
+        private void MinimizeWindowClick(object sender, RoutedEventArgs e)
         {
             WindowHandling.MinimizeWindow(this);
         }
-        private void window_drag(object sender, MouseButtonEventArgs e)
+        private void WindowDrag(object sender, MouseButtonEventArgs e)
         {
             WindowHandling.DragWindow(this);
         }
@@ -83,25 +84,25 @@ namespace Audio_Visualizer
         #endregion
 
         #region MenuNavigation
-        private void select_mixer(object sender, RoutedEventArgs e)
+        private void SelectMixer(object sender, RoutedEventArgs e)
         {
-            SetIconPosition(Mixer);
+            SetIconPosition(MixerButton);
         }
-        private void select_eq(object sender, RoutedEventArgs e)
+        private void SelectEQ(object sender, RoutedEventArgs e)
         {
-            SetIconPosition(EQ);
+            SetIconPosition(EQButton);
         }
-        private void select_chroma(object sender, RoutedEventArgs e)
+        private void SelectChroma(object sender, RoutedEventArgs e)
         {
-            SetIconPosition(Chroma);
+            SetIconPosition(ChromaButton);
         }
-        private void select_comms(object sender, RoutedEventArgs e)
+        private void SelectComms(object sender, RoutedEventArgs e)
         {
-            SetIconPosition(Comms);
+            SetIconPosition(CommsButton);
         }
-        private void select_settings(object sender, RoutedEventArgs e)
+        private void SelectSettings(object sender, RoutedEventArgs e)
         {
-            SetIconPosition(Settings);
+            SetIconPosition(SettingsButton);
         }
 
         /// <summary>
@@ -123,22 +124,22 @@ namespace Audio_Visualizer
         /// </summary>
         public static void StartTimer()
         {
-            m_Timer.Tick += timer_tick;
+            m_Timer.Tick += TimerTick;
             m_Timer.Interval = m_TimerInterval;
             m_Timer.Start();
         }
-        
+
         /// <summary>
         /// Stop the dispatch timer
         /// </summary>
         public static void StopTimer()
         {
             m_Timer.Stop();
-            m_Timer.Tick -= timer_tick;
+            m_Timer.Tick -= TimerTick;
         }
 
         //main logic
-        private static void timer_tick(object sender, EventArgs e)
+        private static void TimerTick(object sender, EventArgs e)
         {
             Analyzer.GetBarValues();
         }

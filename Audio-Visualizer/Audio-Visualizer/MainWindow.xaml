@@ -99,6 +99,8 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+        
+        <BorderGapMaskConverter x:Key="BorderGapMaskConverter"/>
     </Window.Resources>
 
 
@@ -119,21 +121,21 @@
                 <ColumnDefinition Width="450*"/>
             </Grid.ColumnDefinitions>
             <Grid x:Name="WindowControl" Margin="0" Grid.ColumnSpan="3">
-                <Button Style="{StaticResource RedMouseOver}" x:Name="close_window" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="close_window_Click" HorizontalAlignment="Right" Width="50" Background="#FFCB0808" Margin="0">
+                <Button Style="{StaticResource RedMouseOver}" x:Name="close_window" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="CloseWindowClick" HorizontalAlignment="Right" Width="50" Background="#FFCB0808" Margin="0">
                     <Button.Content>
                         <Grid Margin="0">
                             <Image Source="Resources/Close.png" Width="12"/>
                         </Grid>
                     </Button.Content>
                 </Button>
-                <Button Style="{StaticResource GrayMouseOver}" x:Name="maximize_window"  BorderBrush="{x:Null}" Foreground="{x:Null}" Click="maximize_window_Click" HorizontalAlignment="Right" Width="50" Margin="0,0,50,0">
+                <Button Style="{StaticResource GrayMouseOver}" x:Name="maximize_window"  BorderBrush="{x:Null}" Foreground="{x:Null}" Click="MaximizeWindowClick" HorizontalAlignment="Right" Width="50" Margin="0,0,50,0">
                     <Button.Content>
                         <Grid Margin="0">
                             <Image Source="Resources/Maximize.png" Width="12"/>
                         </Grid>
                     </Button.Content>
                 </Button>
-                <Button Style="{StaticResource GrayMouseOver}" x:Name="minimize_window" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="minimize_window_Click" HorizontalAlignment="Right" Width="50" Margin="0,0,100,0" RenderTransformOrigin="10.98,1.857">
+                <Button Style="{StaticResource GrayMouseOver}" x:Name="minimize_window" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="MinimizeWindowClick" HorizontalAlignment="Right" Width="50" Margin="0,0,100,0" RenderTransformOrigin="10.98,1.857">
                     <Button.Content>
                         <Grid Margin="0">
                             <Image Source="Resources/Minimize.png" Width="12"/>
@@ -141,8 +143,8 @@
                     </Button.Content>
                 </Button>
             </Grid>
-            <Border x:Name="WindowDrag" BorderThickness="1" Margin="0" MouseDown="window_drag" Background="#00D4D4D4" Panel.ZIndex="-1" Grid.ColumnSpan="3" Grid.RowSpan="4"/>
-            <Border x:Name="MenuPanel" BorderThickness="0" Background="#FF252525" CornerRadius="5" MouseDown="window_drag" Grid.RowSpan="4" Margin="0">
+            <Border x:Name="WindowDragGrid" BorderThickness="1" Margin="0" MouseDown="WindowDrag" Background="#00D4D4D4" Panel.ZIndex="-1" Grid.ColumnSpan="3" Grid.RowSpan="4"/>
+            <Border x:Name="MenuPanel" BorderThickness="0" Background="#FF252525" CornerRadius="5" MouseDown="WindowDrag" Grid.RowSpan="4" Margin="0">
                 <Border.Effect>
                     <DropShadowEffect Direction="0" ShadowDepth="2" Opacity="0.5" BlurRadius="15"/>
                 </Border.Effect>
@@ -153,11 +155,11 @@
                         <Ellipse x:Name="Icon" Fill="#FF00A2FF" HorizontalAlignment="Left" Height="18" Margin="6,6,0,6" VerticalAlignment="Center" Width="18"/>
                     </Grid>
                     <Grid x:Name="Navigation" Height="179" Margin="0,60,0,0" VerticalAlignment="Top">
-                        <Button x:Name="Mixer" Content="Mixer" HorizontalAlignment="Center" Width="32" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="59,0" VerticalAlignment="Top" Height="24"  Style="{DynamicResource NavigationButton}" Click="select_mixer"/>
-                        <Button x:Name="EQ" Content="EQ" HorizontalAlignment="Center" Width="16" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="67,24,67,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="select_eq"/>
-                        <Button x:Name="Chroma" Content="Chroma" HorizontalAlignment="Center" Width="42" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="54,48,54,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="select_chroma"/>
-                        <Button x:Name="Comms" Content="Comms" HorizontalAlignment="Center" Width="42" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="54,72,54,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="select_comms"/>
-                        <Button x:Name="Settings" Content="Settings" HorizontalAlignment="Center" Width="44" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="53,96,53,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="select_settings"/>
+                        <Button x:Name="MixerButton" Content="Mixer" HorizontalAlignment="Center" Width="32" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="59,0" VerticalAlignment="Top" Height="24"  Style="{DynamicResource NavigationButton}" Click="SelectMixer"/>
+                        <Button x:Name="EQButton" Content="EQ" HorizontalAlignment="Center" Width="16" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="67,24,67,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="SelectEQ"/>
+                        <Button x:Name="ChromaButton" Content="Chroma" HorizontalAlignment="Center" Width="42" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="54,48,54,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="SelectChroma"/>
+                        <Button x:Name="CommsButton" Content="Comms" HorizontalAlignment="Center" Width="42" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="54,72,54,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="SelectComms"/>
+                        <Button x:Name="SettingsButton" Content="Settings" HorizontalAlignment="Center" Width="44" FontFamily="Bahnschrift Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="53,96,53,0" VerticalAlignment="Top" Height="24" Style="{DynamicResource NavigationButton}" Click="SelectSettings"/>
                         <Rectangle x:Name="SelectedPanelIcon" Fill="#FF00A2FF" HorizontalAlignment="Center" Height="4" Margin="44,106,102,69" RadiusY="0.5" RadiusX="0.5" VerticalAlignment="Top" Width="4" RenderTransformOrigin="0.5,0.5"/>
                     </Grid>
                     <Grid x:Name="Spotify" Height="209" VerticalAlignment="Bottom">
@@ -201,7 +203,7 @@
                     <DropShadowEffect Direction="0" BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
                 </Border.Effect>
                 <UniformGrid x:Name="AnalyzerBars" IsEnabled="False" Margin="20,40" Rows="1" Columns="10">
-                    
+
                 </UniformGrid>
             </Border>
             <Border x:Name="SpectrogramPanel" BorderThickness="0" Margin="5,5,10,5" Background="#FF252525" CornerRadius="10" Grid.Column="2" Grid.Row="2">
@@ -213,6 +215,21 @@
                 <Border.Effect>
                     <DropShadowEffect Direction="0" BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
                 </Border.Effect>
+                <Grid>
+                    <UniformGrid x:Name="MixerGrid" Margin="20" Columns="10">
+                    </UniformGrid>
+                    <UniformGrid x:Name="SpacerGrid" Margin="20" Columns="10">
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                        <Rectangle VerticalAlignment="Stretch" Margin="0" HorizontalAlignment="Right" Width="1" Fill="#FF363636"/>
+                    </UniformGrid>
+                </Grid>
             </Border>
         </Grid>
     </Border>

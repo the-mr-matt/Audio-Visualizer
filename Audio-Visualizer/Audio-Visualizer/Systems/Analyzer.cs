@@ -1,4 +1,5 @@
 ﻿using Audio_Visualizer.CSCore;
+using Audio_Visualizer.UI;
 using CSCore;
 using CSCore.CoreAudioAPI;
 using CSCore.DSP;
@@ -11,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 
-namespace Audio_Visualizer
+namespace Audio_Visualizer.Systems
 {
     public class Analyzer
     {
@@ -22,6 +23,9 @@ namespace Audio_Visualizer
         #region ----CONFIG----
         private const int m_NumberOfAnalysisBars = 14;
         private const double m_Multiplier = 4;
+        #endregion
+
+        #region ----STATE----
         private static Grid[] m_Bars;
 
         private static WasapiCapture m_SoundIn;
@@ -72,14 +76,15 @@ namespace Audio_Visualizer
                 background.Margin = bgMargin;
 
                 //background color
-                Color color = (Color)ColorConverter.ConvertFromString("#FF363636");
-                background.Fill = new SolidColorBrush(color);
+                background.Fill = new SolidColorBrush(ColorPalette.Gray);
 
                 //dropshadow
-                DropShadowEffect dropShadow = new DropShadowEffect();
-                dropShadow.BlurRadius = 20;
-                dropShadow.ShadowDepth = 0;
-                dropShadow.Opacity = 0.3;
+                DropShadowEffect dropShadow = new DropShadowEffect
+                {
+                    BlurRadius = 20,
+                    ShadowDepth = 0,
+                    Opacity = 0.3
+                };
                 background.Effect = dropShadow;
 
                 //line
@@ -100,8 +105,7 @@ namespace Audio_Visualizer
                 line.RadiusX = line.RadiusY = 1.0;
 
                 //line color
-                Color lineColor = (Color)ColorConverter.ConvertFromString("#FF00A2FF");
-                line.Fill = new SolidColorBrush(lineColor);
+                line.Fill = new SolidColorBrush(ColorPalette.Accent);
 
                 //add to array
                 m_Bars[i] = bar;
