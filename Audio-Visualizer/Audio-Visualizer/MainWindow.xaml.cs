@@ -5,6 +5,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using CSCore.DSP;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Audio_Visualizer
 {
@@ -22,23 +25,29 @@ namespace Audio_Visualizer
             Instance = this;
 
             InitializeComponent();
-            
-            Mixer.CreateMixerChannels();
 
             //init analyzer
             Analyzer.CreateAnalyserBars();
             Analyzer.InitAudioSource();
 
             //init mixer
+            Mixer.CreateMixerChannels();
             Mixer.InitPeakMeter();
         }
         #endregion
 
         #region ----CONFIG----
-        private static DispatcherTimer m_Timer = new DispatcherTimer();
         private static TimeSpan m_TimerInterval = new TimeSpan(0, 0, 0, 0, 20);
+        private const double m_SpectrogramMultiplier = 6.0;
         #endregion
-        
+
+        #region ----STATE----
+        private static bool m_HasInit;
+        private static DispatcherTimer m_Timer = new DispatcherTimer();
+        private static DrawBitmap m_Spectrogram;
+        private static DrawBitmap m_WaveForm;
+        #endregion
+
         #region WindowCommands
         private void CloseWindowClick(object sender, RoutedEventArgs e)
         {
@@ -141,8 +150,21 @@ namespace Audio_Visualizer
         //main logic
         private static void TimerTick(object sender, EventArgs e)
         {
+            //initialize after elements have loaded
+            if (!m_HasInit)
+            {
+                //init spectrogram
+                int width = 1000;//(int)Instance.SpectrogramPanel.ActualWidth * 2;
+                int height = 500;// (int)Instance.SpectrogramGrid.ActualHeight * 2;
+                m_Spectrogram = new DrawBitmap(width, height, m_SpectrogramMultiplier);
+
+                m_HasInit = true;
+            }
+
             Analyzer.ProcessBarValues();
             Mixer.ProcessLevels();
+            
+            Instance.SpectrogramPanel.Background = m_Spectrogram.CreateBitmap();
         }
     }
 }

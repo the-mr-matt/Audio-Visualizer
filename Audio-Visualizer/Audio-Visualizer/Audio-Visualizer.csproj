@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -68,6 +69,7 @@
     <Compile Include="CSCore\ScalingStrategy.cs" />
     <Compile Include="CSCore\SpectrumBase.cs" />
     <Compile Include="Systems\Mixer.cs" />
+    <Compile Include="Systems\DrawBitmap.cs" />
     <Compile Include="UI\ColorPalette.cs" />
     <Compile Include="UI\WindowHandling.cs" />
     <Page Include="MainWindow.xaml">
@@ -116,7 +118,7 @@
     <Resource Include="Resources\Minimize.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\darkSlider.jpg" />
+    <Resource Include="Resources\darkSlider.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -216,7 +216,7 @@
                     <ControlTemplate TargetType="Thumb">
                         <Rectangle Height="50" Width="25 " RadiusX="3" RadiusY="3">
                             <Rectangle.Fill>
-                                <ImageBrush ImageSource="/Images/darkSlider.jpg"/>
+                                <ImageBrush ImageSource="/Resources/darkSlider.jpg"/>
                             </Rectangle.Fill>
                         </Rectangle>
                     </ControlTemplate>

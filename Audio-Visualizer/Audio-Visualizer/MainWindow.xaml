@@ -99,7 +99,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
+
         <BorderGapMaskConverter x:Key="BorderGapMaskConverter"/>
     </Window.Resources>
 
@@ -206,10 +206,11 @@
 
                 </UniformGrid>
             </Border>
-            <Border x:Name="SpectrogramPanel" BorderThickness="0" Margin="5,5,10,5" Background="#FF252525" CornerRadius="10" Grid.Column="2" Grid.Row="2">
+            <Border x:Name="SpectrogramPanel" BorderThickness="0" Margin="5,5,10,5" CornerRadius="10" Grid.Column="2" Grid.Row="2" Background="#FF252525">
                 <Border.Effect>
                     <DropShadowEffect Direction="0" BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
                 </Border.Effect>
+                <Grid x:Name="SpectrogramGrid"/>
             </Border>
             <Border x:Name="MainPanel" BorderThickness="0" Background="#FF252525" CornerRadius="10" Margin="10,5,10,10" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3">
                 <Border.Effect>

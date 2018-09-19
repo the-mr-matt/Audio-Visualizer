@@ -33,6 +33,9 @@ namespace Audio_Visualizer.Systems
         private static IWaveSource m_Source;
         private static SpectrumAnalyzer m_SpectrumAnalyzer;
         private static MMDevice m_Device;
+
+        public static BasicSpectrumProvider SpectrumProvider;
+        public static FftSize FFTSize;
         #endregion
 
         /// <summary>
@@ -171,20 +174,20 @@ namespace Audio_Visualizer.Systems
         /// </summary>
         public static void SetupSampleSource(ISampleSource aSampleSource)
         {
-            const FftSize fftSize = FftSize.Fft2048;
-            var spectrumProvider = new BasicSpectrumProvider(aSampleSource.WaveFormat.Channels, aSampleSource.WaveFormat.SampleRate, fftSize);
+            FFTSize = FftSize.Fft2048;
+            SpectrumProvider = new BasicSpectrumProvider(aSampleSource.WaveFormat.Channels, aSampleSource.WaveFormat.SampleRate, FFTSize);
 
-            m_SpectrumAnalyzer = new SpectrumAnalyzer(fftSize)
+            m_SpectrumAnalyzer = new SpectrumAnalyzer(FFTSize)
             {
-                SpectrumProvider = spectrumProvider,
+                SpectrumProvider = SpectrumProvider,
                 UseAverage = true,
                 BarCount = NumberOfAnalysisBars,
                 UseLogScale = true,
                 ScalingStrategy = ScalingStrategy.Sqrt
             };
-
+            
             var notificationSource = new SingleBlockNotificationStream(aSampleSource);
-            notificationSource.SingleBlockRead += (s, a) => spectrumProvider.Add(a.Left, a.Right);
+            notificationSource.SingleBlockRead += (s, a) => SpectrumProvider.Add(a.Left, a.Right);
 
             m_Source = notificationSource.ToWaveSource(16);
         }
