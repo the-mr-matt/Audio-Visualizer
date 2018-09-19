@@ -23,7 +23,7 @@ namespace Audio_Visualizer.Systems
             UseAverage = false;
             UseLogScale = true;
             ScalingStrategy = ScalingStrategy.Sqrt;
-            SpectrumResolution = 300;
+            SpectrumResolution = height*2;
         }
         #endregion
 
@@ -38,6 +38,9 @@ namespace Audio_Visualizer.Systems
         public static extern bool DeleteObject(IntPtr hObject);
         #endregion
 
+        /// <summary>
+        /// Initialize the bitmap
+        /// </summary>
         public System.Windows.Media.Brush CreateBitmap()
         {
             using (Graphics g = Graphics.FromImage(m_Bitmap))
@@ -58,6 +61,9 @@ namespace Audio_Visualizer.Systems
             }
         }
 
+        /// <summary>
+        /// Calculate the colors
+        /// </summary>
         private bool GetColors(Graphics graphics, float lineThickness)
         {
             if (!m_IsInitialized)
@@ -83,10 +89,12 @@ namespace Audio_Visualizer.Systems
                         SpectrumPointData p = spectrumPoints[i];
 
                         float xCoord = m_Position;
-                        float pointHeight = m_Bitmap.Size.Height / spectrumPoints.Length;
+                        float pointHeight = (float)m_Bitmap.Size.Height / (float)spectrumPoints.Length;
 
                         //get the color based on the fft band value
-                        pen.Color = Utils.Lerp(System.Windows.Media.Color.FromArgb(255, 255, 0, 0), ColorPalette.Accent, p.Value * m_Multiplier);
+                        double value = p.Value * m_Multiplier;
+                        
+                        pen.Color = Utils.Lerp(ColorPalette.PanelBG, ColorPalette.Accent, value);
 
                         var p1 = new PointF(xCoord, currentYOffset);
                         var p2 = new PointF(xCoord, currentYOffset - pointHeight);

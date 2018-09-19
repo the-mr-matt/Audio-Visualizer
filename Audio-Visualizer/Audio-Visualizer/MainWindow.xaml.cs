@@ -38,7 +38,7 @@ namespace Audio_Visualizer
 
         #region ----CONFIG----
         private static TimeSpan m_TimerInterval = new TimeSpan(0, 0, 0, 0, 20);
-        private const double m_SpectrogramMultiplier = 6.0;
+        private const double m_SpectrogramMultiplier = 4.0;
         #endregion
 
         #region ----STATE----
@@ -154,8 +154,8 @@ namespace Audio_Visualizer
             if (!m_HasInit)
             {
                 //init spectrogram
-                int width = 1000;//(int)Instance.SpectrogramPanel.ActualWidth * 2;
-                int height = 500;// (int)Instance.SpectrogramGrid.ActualHeight * 2;
+                int width = (int)Instance.SpectrogramPanel.ActualWidth * 2;
+                int height = (int)Instance.SpectrogramGrid.ActualHeight * 2;
                 m_Spectrogram = new DrawBitmap(width, height, m_SpectrogramMultiplier);
 
                 m_HasInit = true;
@@ -164,7 +164,7 @@ namespace Audio_Visualizer
             Analyzer.ProcessBarValues();
             Mixer.ProcessLevels();
             
-            Instance.SpectrogramPanel.Background = m_Spectrogram.CreateBitmap();
+            Instance.SpectrogramBitmap.Fill = m_Spectrogram.CreateBitmap();
         }
     }
 }

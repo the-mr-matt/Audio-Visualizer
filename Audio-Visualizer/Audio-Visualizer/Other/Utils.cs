@@ -25,7 +25,7 @@ namespace Audio_Visualizer.Other
             int R = (int)Lerp(a.R, b.R, t);
             int G = (int)Lerp(a.G, b.G, t);
             int B = (int)Lerp(a.B, b.B, t);
-            
+
             return System.Drawing.Color.FromArgb(A, R, G, B);
         }
     }

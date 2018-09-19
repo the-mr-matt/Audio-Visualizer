@@ -210,7 +210,9 @@
                 <Border.Effect>
                     <DropShadowEffect Direction="0" BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
                 </Border.Effect>
-                <Grid x:Name="SpectrogramGrid"/>
+                <Grid x:Name="SpectrogramGrid">
+                    <Rectangle x:Name="SpectrogramBitmap" RadiusX="10" RadiusY="10"/>
+                </Grid>
             </Border>
             <Border x:Name="MainPanel" BorderThickness="0" Background="#FF252525" CornerRadius="10" Margin="10,5,10,10" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3">
                 <Border.Effect>
