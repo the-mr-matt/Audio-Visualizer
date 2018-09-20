@@ -12,6 +12,14 @@ namespace Audio_Visualizer.Systems
 {
     public class Mixer
     {
+        #region ----PROPERTIES----
+        public static float MasterPeak
+        {
+            get { return m_MasterPeak; }
+            private set { m_MasterPeak = value;  }
+        }
+        #endregion
+
         #region ----STATE----
         private static Label[] m_ChannelNames;
         private static Grid[] m_Levels;
@@ -19,6 +27,8 @@ namespace Audio_Visualizer.Systems
         private static Thickness m_InitialMargin;
 
         private static AudioMeterInformation m_PeakMeter;
+
+        private static float m_MasterPeak;
         #endregion
 
         #region ----CONFIG----
@@ -200,10 +210,10 @@ namespace Audio_Visualizer.Systems
         public static void ProcessLevels()
         {
             //master levels
-            double value = m_PeakMeter.GetPeakValue() * m_Multiplier;
+            m_MasterPeak = (float)m_PeakMeter.GetPeakValue() * (float)m_Multiplier;
 
             //clamp value
-            SetLevel(0, Math.Min(value, 1));
+            SetLevel(0, Math.Min(m_MasterPeak, 1));
         }
     }
 }

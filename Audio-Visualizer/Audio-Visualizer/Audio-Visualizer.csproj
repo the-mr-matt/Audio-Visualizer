@@ -68,8 +68,10 @@
     <Compile Include="CSCore\SpectrumAnalyzer.cs" />
     <Compile Include="CSCore\ScalingStrategy.cs" />
     <Compile Include="CSCore\SpectrumBase.cs" />
-    <Compile Include="Systems\Mixer.cs" />
     <Compile Include="Systems\DrawBitmap.cs" />
+    <Compile Include="Systems\Waveform.cs" />
+    <Compile Include="Systems\Mixer.cs" />
+    <Compile Include="Systems\Spectrogram.cs" />
     <Compile Include="UI\ColorPalette.cs" />
     <Compile Include="UI\WindowHandling.cs" />
     <Page Include="MainWindow.xaml">

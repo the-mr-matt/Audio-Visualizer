@@ -5,9 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using CSCore.DSP;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace Audio_Visualizer
 {
@@ -39,13 +36,14 @@ namespace Audio_Visualizer
         #region ----CONFIG----
         private static TimeSpan m_TimerInterval = new TimeSpan(0, 0, 0, 0, 20);
         private const double m_SpectrogramMultiplier = 4.0;
+        private const double m_WaveformMultiplier = 0.75;
         #endregion
 
         #region ----STATE----
         private static bool m_HasInit;
         private static DispatcherTimer m_Timer = new DispatcherTimer();
-        private static DrawBitmap m_Spectrogram;
-        private static DrawBitmap m_WaveForm;
+        private static Spectrogram m_Spectrogram;
+        private static Waveform m_Waveform;
         #endregion
 
         #region WindowCommands
@@ -154,9 +152,13 @@ namespace Audio_Visualizer
             if (!m_HasInit)
             {
                 //init spectrogram
-                int width = (int)Instance.SpectrogramPanel.ActualWidth * 2;
-                int height = (int)Instance.SpectrogramGrid.ActualHeight * 2;
-                m_Spectrogram = new DrawBitmap(width, height, m_SpectrogramMultiplier);
+                int spectrogramWidth = (int)Instance.SpectrogramPanel.ActualWidth * 2;
+                int spectrogramHeight = (int)Instance.SpectrogramGrid.ActualHeight * 2;
+                m_Spectrogram = new Spectrogram(spectrogramWidth, spectrogramHeight, m_SpectrogramMultiplier);
+
+                int waveformWidth = (int)Instance.WaveformPanel.ActualWidth * 2;
+                int waveformHeight = (int)Instance.WaveformPanel.ActualHeight * 2;
+                m_Waveform = new Waveform(waveformWidth, waveformHeight, m_WaveformMultiplier);
 
                 m_HasInit = true;
             }
@@ -165,6 +167,7 @@ namespace Audio_Visualizer
             Mixer.ProcessLevels();
             
             Instance.SpectrogramBitmap.Fill = m_Spectrogram.CreateBitmap();
+            Instance.WaveformBitmap.Fill = m_Waveform.CreateBitmap();
         }
     }
 }

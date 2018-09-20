@@ -9,6 +9,11 @@ namespace Audio_Visualizer.UI
             get { return (Color)ColorConverter.ConvertFromString("#FF00A2FF"); }
         }
 
+        public static System.Drawing.Color Accent_Drawing
+        {
+            get { return System.Drawing.ColorTranslator.FromHtml("#FF00A2FF"); }
+        }
+
         public static Color Gray
         {
             get { return (Color)ColorConverter.ConvertFromString("#FF363636"); }

@@ -197,6 +197,9 @@
                 <Border.Effect>
                     <DropShadowEffect Direction="0" BlurRadius="15" ShadowDepth="0" Opacity="0.5"/>
                 </Border.Effect>
+                <Grid x:Name="WaveformGrid" Margin="0">
+                    <Rectangle x:Name="WaveformBitmap" RadiusX="10" RadiusY="10"/>
+                </Grid>
             </Border>
             <Border x:Name="AnalyzerPanel" BorderThickness="0" Margin="10,5,5,5" Background="#FF252525" CornerRadius="10" Grid.Column="1" Grid.Row="2">
                 <Border.Effect>
