@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using CSCore.CoreAudioAPI;
 
 namespace Audio_Visualizer
 {
@@ -23,20 +24,22 @@ namespace Audio_Visualizer
 
             InitializeComponent();
 
+            //get device
+            MMDevice device = MMDeviceEnumerator.DefaultAudioEndpoint(DataFlow.Render, Role.Console);
+            
             //init analyzer
             Analyzer.CreateAnalyserBars();
-            Analyzer.InitAudioSource();
+            Analyzer.InitAudioSource(device);
 
             //init mixer
-            Mixer.CreateMixerChannels();
-            Mixer.InitPeakMeter();
+            Mixer.CreateMixerChannels(device);
         }
         #endregion
 
         #region ----CONFIG----
         private static TimeSpan m_TimerInterval = new TimeSpan(0, 0, 0, 0, 20);
-        private const double m_SpectrogramMultiplier = 4.0;
-        private const double m_WaveformMultiplier = 0.75;
+        private const double m_SpectrogramMultiplier = 6.0;
+        private const double m_WaveformMultiplier = 0.5;
         #endregion
 
         #region ----STATE----
@@ -159,6 +162,8 @@ namespace Audio_Visualizer
                 int waveformWidth = (int)Instance.WaveformPanel.ActualWidth * 2;
                 int waveformHeight = (int)Instance.WaveformPanel.ActualHeight * 2;
                 m_Waveform = new Waveform(waveformWidth, waveformHeight, m_WaveformMultiplier);
+                
+                Mixer.SetUnusedChannels();
 
                 m_HasInit = true;
             }

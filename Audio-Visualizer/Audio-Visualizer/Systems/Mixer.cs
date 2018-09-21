@@ -2,6 +2,9 @@
 using Audio_Visualizer.UI;
 using CSCore.CoreAudioAPI;
 using System;
+using System.Drawing;
+using System.Reflection;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -16,7 +19,7 @@ namespace Audio_Visualizer.Systems
         public static float MasterPeak
         {
             get { return m_MasterPeak; }
-            private set { m_MasterPeak = value;  }
+            private set { m_MasterPeak = value; }
         }
         #endregion
 
@@ -24,26 +27,42 @@ namespace Audio_Visualizer.Systems
         private static Label[] m_ChannelNames;
         private static Grid[] m_Levels;
         private static Grid[] m_LevelParents;
+        private static Slider[] m_Sliders;
+        private static System.Windows.Shapes.Rectangle[] m_Icons;
         private static Thickness m_InitialMargin;
 
-        private static AudioMeterInformation m_PeakMeter;
+        private static AudioMeterInformation[] m_PeakMeters;
+        private static AudioEndpointVolume m_MasterVolume;
+        private static SimpleAudioVolume[] m_ChannelVolume;
 
         private static float m_MasterPeak;
+        private static int m_NumberOfOccupiedChannels;
+        private static bool m_HasStarted;
         #endregion
 
         #region ----CONFIG----
         private const double m_Multiplier = 2.0;
+        private static string[] m_ForbiddenProcesses = new string[]
+        {
+            "System",
+            "Idle",
+            "Bootcamp",
+            "Audio-Visualizer"
+        };
         #endregion
 
         /// <summary>
         /// Creates the mixer channels - levels, slider, channel name, scale
         /// </summary>
-        public static void CreateMixerChannels()
+        public static void CreateMixerChannels(MMDevice device)
         {
             //create arrays
             m_ChannelNames = new Label[10];
             m_Levels = new Grid[10];
             m_LevelParents = new Grid[10];
+            m_Sliders = new Slider[10];
+            m_Icons = new System.Windows.Shapes.Rectangle[9];
+            m_PeakMeters = new AudioMeterInformation[10];
 
             //create mixer sliders
             for (int i = 0; i < 10; i++)
@@ -54,12 +73,27 @@ namespace Audio_Visualizer.Systems
                 //make grid child of mixer grid
                 MainWindow.Instance.MixerGrid.Children.Add(grid);
 
+                //skip the master channel
+                if (i != 0)
+                {
+                    m_Icons[i-1] = new System.Windows.Shapes.Rectangle()
+                    {
+                        Width = 30,
+                        Height = 30,
+                        VerticalAlignment = VerticalAlignment.Top,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Margin = Utils.ZeroMargin
+                    };
+
+                    grid.Children.Add(m_Icons[i-1]);
+                }
+
                 //label
                 Label label = new Label()
                 {
                     Content = "",
                     Foreground = new SolidColorBrush(ColorPalette.Accent),
-                    FontFamily = new FontFamily("Bahnschrift Bold"),
+                    FontFamily = new System.Windows.Media.FontFamily("Bahnschrift Bold"),
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     HorizontalContentAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Top,
@@ -90,6 +124,24 @@ namespace Audio_Visualizer.Systems
                     Value = 70
                 };
 
+                //add to array
+                m_Sliders[i] = slider;
+
+                //setup channel volume
+                if (i == 0)
+                {
+                    //master channel
+                    m_MasterVolume = AudioEndpointVolume.FromDevice(device);
+                    m_Sliders[0].Value = m_MasterVolume.GetMasterVolumeLevelScalar() * 100f;
+
+                    //master peak meter
+                    m_PeakMeters[0] = AudioMeterInformation.FromDevice(device);
+                }
+
+                //value changed event
+                int index = i;
+                slider.ValueChanged += (sender, e) => Slider_ValueChanged(sender, e, i == 0, index);
+
                 //make slider child of grid
                 grid.Children.Add(slider);
 
@@ -110,9 +162,9 @@ namespace Audio_Visualizer.Systems
 
                 //add to array
                 m_Levels[i] = level;
-                
+
                 //levels shape
-                Rectangle bg = new Rectangle()
+                System.Windows.Shapes.Rectangle bg = new System.Windows.Shapes.Rectangle()
                 {
                     Fill = new SolidColorBrush(ColorPalette.Gray),
                     HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -120,7 +172,7 @@ namespace Audio_Visualizer.Systems
                     Margin = Utils.ZeroMargin
                 };
 
-                Rectangle line = new Rectangle()
+                System.Windows.Shapes.Rectangle line = new System.Windows.Shapes.Rectangle()
                 {
                     Fill = new SolidColorBrush(ColorPalette.Accent),
                     HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -151,7 +203,7 @@ namespace Audio_Visualizer.Systems
                 //scale ticks
                 for (int x = 0; x < 10; x++)
                 {
-                    Rectangle tick = new Rectangle()
+                    System.Windows.Shapes.Rectangle tick = new System.Windows.Shapes.Rectangle()
                     {
                         Fill = new SolidColorBrush(ColorPalette.Gray),
                         HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -165,10 +217,105 @@ namespace Audio_Visualizer.Systems
                 }
             }
 
+
+            //init channel volumes
+            GetChannelVolumes();
+
             //set first channel
             SetChannelName(0, "Master");
+
+            m_HasStarted = true;
         }
-        
+
+        /// <summary>
+        /// Add the programs outputting audio to the simple volume array
+        /// </summary>
+        private static void GetChannelVolumes()
+        {
+            //create array of channels
+            m_ChannelVolume = new SimpleAudioVolume[9];
+
+            //get processes outputting audio
+            AudioSessionManager2 sessionManager = null;
+            var thread = new Thread
+            (
+                () => { sessionManager = GetDefaultAudioSessionManager2(DataFlow.Render); }
+            );
+
+            thread.Start();
+            thread.Join();
+
+            AudioSessionEnumerator sessionEnumerator = sessionManager.GetSessionEnumerator();
+
+            //loop through processes - clamp to number of channels
+            //skip the master channel
+            m_NumberOfOccupiedChannels = 0;
+            for (int i = 1; i < Math.Min(sessionEnumerator.Count, 10); i++)
+            {
+                //get the process and name
+                var process = sessionEnumerator[i].QueryInterface<AudioSessionControl2>().Process;
+                string name = process == null ? "Unnamed" : process.ProcessName;
+
+                //check if this process is valid for audio monitoring
+                bool flag = false;
+                for (int x = 0; x < m_ForbiddenProcesses.Length; x++)
+                {
+                    if (name == m_ForbiddenProcesses[x])
+                    {
+                        flag = true;
+                    }
+                }
+
+                if (flag) { continue; }
+
+                //get process icon
+                Icon icon = Icon.ExtractAssociatedIcon(process.MainModule.FileName);
+
+                //set icon
+                m_Icons[m_NumberOfOccupiedChannels].Fill = new ImageBrush(icon.ToImageSource());
+
+                //get the simple volume
+                SimpleAudioVolume simpleVolume = sessionEnumerator[i].QueryInterface<SimpleAudioVolume>();
+                m_ChannelVolume[m_NumberOfOccupiedChannels] = simpleVolume;
+
+                //get the peak meter
+                m_PeakMeters[m_NumberOfOccupiedChannels] = sessionEnumerator[i].QueryInterface<AudioMeterInformation>();
+
+                m_NumberOfOccupiedChannels++;
+            }
+        }
+
+        private static AudioSessionManager2 GetDefaultAudioSessionManager2(DataFlow dataFlow)
+        {
+            using (var enumerator = new MMDeviceEnumerator())
+            {
+                using (var device = enumerator.GetDefaultAudioEndpoint(dataFlow, Role.Multimedia))
+                {
+                    var sessionManager = AudioSessionManager2.FromMMDevice(device);
+                    return sessionManager;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the value of unused channels to zero 
+        /// </summary>
+        public static void SetUnusedChannels()
+        {
+            for (int i = m_NumberOfOccupiedChannels + 1; i < 10; i++)
+            {
+                SetLevel(i, 0.0);
+            }
+        }
+
+        /// <summary>
+        /// Called when a slider has changed value, sets the volume on the channel with the given index
+        /// </summary>
+        private static void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e, bool isMaster, int index)
+        {
+            SetVolume(isMaster, index);
+        }
+
         /// <summary>
         /// Replace the default channel name
         /// </summary>
@@ -178,7 +325,7 @@ namespace Audio_Visualizer.Systems
 
             m_ChannelNames[index].Content = content;
         }
-        
+
         /// <summary>
         /// Set the level for the given channel
         /// </summary>
@@ -200,20 +347,38 @@ namespace Audio_Visualizer.Systems
             margin.Top = value;
             m_Levels[index].Margin = margin;
         }
-
-        public static void InitPeakMeter()
-        {
-            MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
-            m_PeakMeter = AudioMeterInformation.FromDevice(enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console));
-        }
-
+        
+        /// <summary>
+        /// Get the volume output from the channels
+        /// </summary>
         public static void ProcessLevels()
         {
-            //master levels
-            m_MasterPeak = (float)m_PeakMeter.GetPeakValue() * (float)m_Multiplier;
+            for (int i = 0; i < 10; i++)
+            {
+                //set and clamp levels
+                float level = (float)m_PeakMeters[0].GetPeakValue() * (float)m_Multiplier;
+                SetLevel(i, Math.Min(level, 1.0));
+            }
+        }
 
-            //clamp value
-            SetLevel(0, Math.Min(m_MasterPeak, 1));
+        /// <summary>
+        /// Set the channel volume at the given index
+        /// </summary>
+        public static void SetVolume(bool isMaster, int index)
+        {
+            if (m_HasStarted)
+            {
+                float value = (float)m_Sliders[index].Value / 100f;
+
+                if (isMaster)
+                {
+                    m_MasterVolume.SetMasterVolumeLevelScalarNative(value, Guid.Empty);
+                }
+                else
+                {
+                    m_ChannelVolume[index-1].SetMasterVolumeNative(value, Guid.Empty);
+                }
+            }
         }
     }
 }

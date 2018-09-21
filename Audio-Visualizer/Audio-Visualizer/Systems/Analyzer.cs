@@ -22,7 +22,7 @@ namespace Audio_Visualizer.Systems
 
         #region ----CONFIG----
         private const int m_NumberOfAnalysisBars = 14;
-        private const double m_Multiplier = 4;
+        private const double m_Multiplier = 3;
         #endregion
 
         #region ----STATE----
@@ -32,7 +32,6 @@ namespace Audio_Visualizer.Systems
         private static ISoundOut m_SoundOut;
         private static IWaveSource m_Source;
         private static SpectrumAnalyzer m_SpectrumAnalyzer;
-        private static MMDevice m_Device;
 
         public static BasicSpectrumProvider SpectrumProvider;
         public static FftSize FFTSize;
@@ -140,16 +139,14 @@ namespace Audio_Visualizer.Systems
         /// <summary>
         /// Begin the audio input
         /// </summary>
-        public static void InitAudioSource()
+        public static void InitAudioSource(MMDevice device)
         {
             Stop();
 
             //open default audio device
             m_SoundIn = new WasapiLoopbackCapture();
 
-            m_Device = MMDeviceEnumerator.DefaultAudioEndpoint(DataFlow.Render, Role.Console);
-
-            m_SoundIn.Device = m_Device;
+            m_SoundIn.Device = device;
             m_SoundIn.Initialize();
 
             var soundInSource = new SoundInSource(m_SoundIn);
